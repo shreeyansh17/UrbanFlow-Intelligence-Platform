@@ -1,0 +1,167 @@
+version: '3.8'
+
+services:
+  # ─── Zookeeper ───────────────────────────────────────────────
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: urban_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - urban_net
+
+  # ─── Kafka Broker ────────────────────────────────────────────
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: urban_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - urban_net
+
+  # ─── Schema Registry ─────────────────────────────────────────
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.5.0
+    container_name: urban_schema_registry
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8081"
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:29092
+    networks:
+      - urban_net
+
+  # ─── Kafka UI (KafkaHQ) ──────────────────────────────────────
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: urban_kafka_ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: urban-pulse
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+    networks:
+      - urban_net
+
+  # ─── PostgreSQL ──────────────────────────────────────────────
+  postgres:
+    image: postgres:15
+    container_name: urban_postgres
+    environment:
+      POSTGRES_DB: urban_pulse_ops
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - urban_net
+
+  # ─── Redis ───────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: urban_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - urban_net
+
+  # ─── MinIO (S3-compatible Data Lake) ─────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: urban_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - urban_net
+
+  # ─── Airflow ─────────────────────────────────────────────────
+  airflow-webserver:
+    image: apache/airflow:2.8.0
+    container_name: urban_airflow
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:postgres123@postgres/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__WEBSERVER__SECRET_KEY: urban_pulse_secret
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_USERNAME: admin
+      _AIRFLOW_WWW_USER_PASSWORD: admin123
+    volumes:
+      - ./airflow_dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+    ports:
+      - "8080:8080"
+    command: webserver
+    networks:
+      - urban_net
+
+  # ─── Urban Pulse API ─────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: urban_api
+    depends_on:
+      - postgres
+      - redis
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app/api
+      - ./ml_models:/app/ml_models
+    networks:
+      - urban_net
+
+  # ─── Plotly Dashboard ────────────────────────────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: urban_dashboard
+    depends_on:
+      - api
+    ports:
+      - "8050:8050"
+    networks:
+      - urban_net
+
+volumes:
+  postgres_data:
+  minio_data:
+  airflow_logs:
+
+networks:
+  urban_net:
+    driver: bridge

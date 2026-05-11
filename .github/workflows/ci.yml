@@ -1,0 +1,100 @@
+name: Urban Pulse CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Test Suite ──────────────────────────────────────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pytest-cov pytest-asyncio httpx
+          pip install pandas numpy scikit-learn xgboost faker loguru
+          pip install fastapi uvicorn pydantic python-dotenv
+
+      - name: Run tests
+        run: |
+          cd tests
+          pytest test_urban_pulse.py -v --tb=short \
+            --cov=.. --cov-report=xml --cov-report=term-missing \
+            -k "not TestAPI"
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+
+  # ── Lint ────────────────────────────────────────────────────────────────────
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install linters
+        run: pip install flake8 black isort
+
+      - name: Check formatting
+        run: black --check --diff .
+
+      - name: Check imports
+        run: isort --check-only .
+
+      - name: Lint
+        run: flake8 . --max-line-length=120 --ignore=E501,W503
+
+  # ── Docker Build ────────────────────────────────────────────────────────────
+  docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build API image
+        run: docker build -f docker/Dockerfile.api -t urban-pulse-api:${{ github.sha }} .
+
+      - name: Build Dashboard image
+        run: docker build -f docker/Dockerfile.dashboard -t urban-pulse-dashboard:${{ github.sha }} .
+
+      - name: Test docker-compose
+        run: |
+          cp .env.example .env
+          docker-compose config  # Validate compose file
+
+  # ── dbt Validation ──────────────────────────────────────────────────────────
+  dbt:
+    name: Validate dbt Models
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dbt
+        run: pip install dbt-core==1.7.3
+
+      - name: Validate dbt project
+        run: |
+          cd dbt_models
+          dbt parse --profiles-dir . --no-send-anonymous-usage-stats

@@ -1,0 +1,23 @@
+urban_pulse:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: SYSADMIN
+      database: URBAN_PULSE
+      warehouse: COMPUTE_WH
+      schema: PUBLIC
+      threads: 4
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: SYSADMIN
+      database: URBAN_PULSE
+      warehouse: COMPUTE_WH
+      schema: PUBLIC
+      threads: 8
