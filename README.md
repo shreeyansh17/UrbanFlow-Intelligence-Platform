@@ -238,8 +238,8 @@ Testing:        pytest, Great Expectations
 
 ## 📧 Contact
 
-**Your Name** | Data Engineer & Analyst  
-[LinkedIn](https://linkedin.com) | [GitHub](https://github.com) | your.email@gmail.com
+**Shreeyansh Singh** | Data Engineer & Analyst  
+[LinkedIn](https://www.linkedin.com/in/shreeyansh-singh-1789b5286/) | [GitHub](https://github.com/shreeyansh17) | shree170703@gmail.com
 
 ---
 
