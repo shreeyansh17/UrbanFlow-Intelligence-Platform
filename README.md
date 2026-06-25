@@ -7,7 +7,7 @@
 
 ## 📌 Project Overview
 
-Urban Pulse is a **production-grade data platform** that simulates and analyzes ride-hailing (Uber-style) and food delivery (Zomato-style) operations for a metropolitan city. It demonstrates the full modern data stack — from real-time ingestion to AI-powered business insights.
+UrbanFlow is a **production-grade data platform** that simulates and analyzes ride-hailing (Uber-style) and food delivery (Zomato-style) operations for a metropolitan city. It demonstrates the full modern data stack — from real-time ingestion to AI-powered business insights.
 
 ### 🎯 What This Project Proves
 
