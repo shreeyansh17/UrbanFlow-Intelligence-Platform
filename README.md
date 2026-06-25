@@ -1,4 +1,4 @@
-# 🏆 Urban Pulse Intelligence Platform
+# 🏆 UrbanFlow Intelligence Platform
 
 > **End-to-End Real-Time Data Engineering + AI System** — Uber × Zomato Analytics  
 > *Processing 1M+ simulated events/day | Kafka → Spark → Snowflake → ML → Power BI*
@@ -118,8 +118,8 @@ urban-pulse/
 
 ### 1. Clone & Setup
 ```bash
-git clone https://github.com/yourusername/urban-pulse.git
-cd urban-pulse
+git clone https://github.com/shreeyansh17/UrbanFlow-Intelligence-Platform.git
+cd UrbanFlow-Intelligence-Platform
 cp .env.example .env
 # Fill in your Snowflake + API credentials in .env
 pip install -r requirements.txt
