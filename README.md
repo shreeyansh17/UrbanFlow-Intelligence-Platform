@@ -1,5 +1,7 @@
 # 🏆 UrbanFlow Intelligence Platform
 
+[![Urban Pulse CI/CD Pipeline](https://github.com/shreeyansh17/UrbanFlow-Intelligence-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/shreeyansh17/UrbanFlow-Intelligence-Platform/actions/workflows/ci.yml)
+
 > **End-to-End Real-Time Data Engineering + AI System** — Uber × Zomato Analytics  
 > *Processing 1M+ simulated events/day | Kafka → Spark → Snowflake → ML → Power BI*
 
@@ -185,6 +187,7 @@ python plotly_dashboard.py
 | Anomaly Detection F1 | 0.91 |
 | Data Pipeline Latency | < 5 seconds |
 | dbt Models | 18 models, 47 tests |
+| CI/CD Pipeline | ✅ 23/23 unit tests passing |
 
 ---
 
