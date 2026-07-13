@@ -76,7 +76,7 @@ jobs:
       - name: Test docker-compose
         run: |
           cp .env.example .env
-          docker-compose config
+          docker compose config
 
   dbt:
     name: Validate dbt Models

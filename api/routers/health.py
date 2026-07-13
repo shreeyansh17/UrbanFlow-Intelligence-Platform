@@ -1,6 +1,5 @@
 """Urban Pulse — Health, Rides, and Orders Routers"""
 
-import random
 from datetime import datetime
 
 from fastapi import APIRouter

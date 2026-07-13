@@ -12,12 +12,10 @@ import random
 from datetime import datetime, timedelta
 
 import dash
-import numpy as np
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import requests
-from dash import Input, Output, State, callback, dcc, html
+from dash import Input, Output, State, dcc, html
 from plotly.subplots import make_subplots
 
 API_BASE = "http://localhost:8000/api/v1"

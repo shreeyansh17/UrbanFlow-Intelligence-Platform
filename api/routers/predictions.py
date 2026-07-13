@@ -4,7 +4,7 @@ Serves surge price, ETA, and demand forecasts via REST API
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, validator

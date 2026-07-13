@@ -21,7 +21,6 @@ from config import (
     RIDE_PRICING,
     SURGE_THRESHOLDS,
     VEHICLE_TYPES,
-    WEEKEND_MULTIPLIER,
 )
 from faker import Faker
 from loguru import logger

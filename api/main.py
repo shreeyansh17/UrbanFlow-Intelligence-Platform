@@ -4,24 +4,20 @@ Production-ready REST API serving ML predictions,
 live KPIs, and business insights
 """
 
-import asyncio
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 import uvicorn
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
 from loguru import logger
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from api.routers import health, insights, orders, predictions, rides
-from api.schemas.common import APIResponse
 
 # ─── App Startup / Shutdown ───────────────────────────────────────────────────
 

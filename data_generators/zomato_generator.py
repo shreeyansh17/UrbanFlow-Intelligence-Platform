@@ -18,10 +18,7 @@ from config import (
     CUISINE_TYPES,
     FOOD_PRICING,
     HOURLY_DEMAND,
-    RAIN_MULTIPLIER_FOOD,
     RESTAURANT_CHAINS,
-    VEHICLE_TYPES,
-    WEEKEND_MULTIPLIER,
 )
 from faker import Faker
 from loguru import logger

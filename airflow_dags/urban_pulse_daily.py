@@ -3,10 +3,9 @@ Urban Pulse — Airflow DAG
 Daily pipeline: Generate → Kafka → Spark ETL → dbt → ML Training → Report
 """
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from airflow import DAG
-from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.operators.python import PythonOperator

@@ -17,14 +17,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
 try:
-    import tensorflow as tf
     from tensorflow.keras.callbacks import (
         EarlyStopping,
         ModelCheckpoint,
         ReduceLROnPlateau,
     )
     from tensorflow.keras.layers import LSTM, BatchNormalization, Dense, Dropout
-    from tensorflow.keras.models import Sequential, load_model
+    from tensorflow.keras.models import Sequential
     from tensorflow.keras.optimizers import Adam
 
     TF_AVAILABLE = True

@@ -5,11 +5,9 @@ Facebook Prophet for 7-day ride & order demand prediction per zone
 
 import json
 import pickle
-from datetime import datetime, timedelta
 from pathlib import Path
 
 import matplotlib
-import numpy as np
 import pandas as pd
 from loguru import logger
 from prophet import Prophet
@@ -299,7 +297,6 @@ if __name__ == "__main__":
 
     sys.path.append("../data_generators")
     from uber_generator import UberRideGenerator
-    from zomato_generator import ZomatoOrderGenerator
 
     # Train Uber model
     logger.info("Generating training data...")

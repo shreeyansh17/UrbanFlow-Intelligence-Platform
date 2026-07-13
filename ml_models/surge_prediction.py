@@ -5,7 +5,6 @@ Accuracy: ~89% on test set
 """
 
 import json
-import os
 import pickle
 import warnings
 from datetime import datetime
@@ -19,11 +18,10 @@ from loguru import logger
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
-    confusion_matrix,
     f1_score,
 )
 from sklearn.model_selection import cross_val_score, train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.preprocessing import LabelEncoder
 
 warnings.filterwarnings("ignore")
 

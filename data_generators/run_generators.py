@@ -59,7 +59,7 @@ def generate_historical_data(
     uber_gen = UberRideGenerator(driver_pool)
     uber_records_data = uber_gen.generate_batch(n=uber_records, start_date=start_date)
 
-    uber_parquet = save_to_parquet(uber_records_data, "uber_rides", "raw/uber")
+    save_to_parquet(uber_records_data, "uber_rides", "raw/uber")
     save_to_csv(uber_records_data[:5000], "uber_rides_sample", "raw/uber")
     logger.success(f"Uber data: {len(uber_records_data):,} records saved")
 
@@ -71,7 +71,7 @@ def generate_historical_data(
         n=zomato_records, start_date=start_date
     )
 
-    zomato_parquet = save_to_parquet(zomato_records_data, "zomato_orders", "raw/zomato")
+    save_to_parquet(zomato_records_data, "zomato_orders", "raw/zomato")
     save_to_csv(zomato_records_data[:5000], "zomato_orders_sample", "raw/zomato")
     logger.success(f"Zomato data: {len(zomato_records_data):,} records saved")
 

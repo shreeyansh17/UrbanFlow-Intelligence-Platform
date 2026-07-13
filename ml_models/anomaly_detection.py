@@ -17,7 +17,6 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 from sklearn.ensemble import IsolationForest
-from sklearn.metrics import classification_report
 from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")

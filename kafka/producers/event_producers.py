@@ -9,7 +9,6 @@ import sys
 import threading
 import time
 from datetime import datetime
-from typing import Optional
 
 from loguru import logger
 

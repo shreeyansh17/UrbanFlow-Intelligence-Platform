@@ -1,9 +1,6 @@
 """Urban Pulse — AI Insights Router"""
 
-import os
-from typing import Optional
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 router = APIRouter()

@@ -6,15 +6,13 @@ Demonstrates: PySpark, Data Quality, Star Schema loading
 
 import argparse
 import os
-import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from loguru import logger
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import *
-from pyspark.sql.window import Window
 
 # ─── Spark Session ────────────────────────────────────────────────────────────
 
@@ -402,7 +400,6 @@ def build_dim_tables(spark: SparkSession) -> dict:
     """Build dimension tables for Star Schema"""
 
     # dim_time
-    from pyspark.sql.functions import expr
 
     date_range = spark.sql("""
         SELECT explode(sequence(

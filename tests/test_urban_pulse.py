@@ -3,12 +3,10 @@ Urban Pulse — Test Suite
 Tests for data generators, ML models, and API endpoints
 """
 
-import json
 import sys
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -49,7 +47,7 @@ class TestUberGenerator:
             assert key in d, f"Missing key: {key}"
 
     def test_ride_request_values(self):
-        from dataclasses import asdict
+        pass
 
         event = self.generator.generate_ride_request()
         assert event.event_type == "requested"
@@ -138,7 +136,7 @@ class TestZomatoGenerator:
         assert all(t <= 120 for t in times), "Delivery time unrealistically long"
 
     def test_items_structure(self):
-        from dataclasses import asdict
+        pass
 
         order = self.generator.generate_order()
         assert len(order.items) >= 1
@@ -176,7 +174,6 @@ class TestSurgeModel:
         """Test that predict returns expected keys"""
         model = self.ModelClass()
         # Mock a trained model
-        import pickle
 
         import xgboost as xgb
         from sklearn.datasets import make_classification

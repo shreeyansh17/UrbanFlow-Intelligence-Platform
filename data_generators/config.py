@@ -3,10 +3,6 @@ Urban Pulse - City Configuration
 Simulates Mumbai (can be changed to any metro)
 """
 
-import random
-from dataclasses import dataclass, field
-from typing import Dict, List, Tuple
-
 # ─── City Zones ──────────────────────────────────────────────────────────────
 CITY_ZONES = {
     1: {

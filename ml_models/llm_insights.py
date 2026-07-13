@@ -6,11 +6,9 @@ This is the flagship AI feature that makes recruiters go WOW
 
 import json
 import os
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 import anthropic
-import pandas as pd
 from loguru import logger
 
 SYSTEM_PROMPT = """You are Urban Pulse AI, a senior data analyst assistant for a ride-hailing 
