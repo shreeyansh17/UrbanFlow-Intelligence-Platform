@@ -1,0 +1,13 @@
+zone_id,zone_name,latitude,longitude,zone_type,density
+1,Andheri West,19.1197,72.8466,residential,high
+2,Bandra Kurla,19.0596,72.8650,business,very_high
+3,Colaba,18.9067,72.8147,tourist,medium
+4,Dadar,19.0178,72.8478,mixed,high
+5,Juhu,19.1075,72.8263,premium,medium
+6,Lower Parel,18.9956,72.8258,business,high
+7,Malad East,19.1871,72.8485,residential,very_high
+8,Powai,19.1176,72.9060,tech_hub,high
+9,Thane,19.2183,72.9781,suburban,high
+10,Borivali,19.2307,72.8567,residential,very_high
+11,Navi Mumbai,19.0330,73.0297,planned,medium
+12,Airport Zone,19.0896,72.8656,transit,medium

@@ -5,17 +5,21 @@ Facebook Prophet for 7-day ride & order demand prediction per zone
 
 import json
 import pickle
-import pandas as pd
-import numpy as np
 from datetime import datetime, timedelta
 from pathlib import Path
+
+import matplotlib
+import numpy as np
+import pandas as pd
 from loguru import logger
 from prophet import Prophet
 from prophet.diagnostics import cross_validation, performance_metrics
-import matplotlib
+
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import warnings
+
+import matplotlib.pyplot as plt
+
 warnings.filterwarnings("ignore")
 
 MODEL_DIR = Path("../models/saved")
@@ -32,8 +36,8 @@ class DemandForecastModel:
 
     def __init__(self, platform: str = "uber"):
         self.platform = platform  # "uber" or "zomato"
-        self.models = {}          # zone_id -> Prophet model
-        self.forecasts = {}       # zone_id -> forecast df
+        self.models = {}  # zone_id -> Prophet model
+        self.forecasts = {}  # zone_id -> forecast df
         self.metrics = {}
 
     def prepare_zone_data(self, df: pd.DataFrame, zone_id: int) -> pd.DataFrame:
@@ -51,10 +55,7 @@ class DemandForecastModel:
 
         # Resample to hourly counts
         ts = (
-            zone_df.set_index("event_ts")
-            .resample("h")[value_col]
-            .count()
-            .reset_index()
+            zone_df.set_index("event_ts").resample("h")[value_col].count().reset_index()
         )
         ts.columns = ["ds", "y"]
         ts = ts[ts["y"] > 0]  # Remove zero-demand hours
@@ -64,18 +65,32 @@ class DemandForecastModel:
 
     def add_indian_holidays(self, model: Prophet) -> Prophet:
         """Add major Indian holidays as regressors"""
-        holidays = pd.DataFrame({
-            "holiday": [
-                "republic_day", "holi", "independence_day",
-                "gandhi_jayanti", "diwali", "christmas", "new_year"
-            ],
-            "ds": pd.to_datetime([
-                "2024-01-26", "2024-03-25", "2024-08-15",
-                "2024-10-02", "2024-11-01", "2024-12-25", "2025-01-01"
-            ]),
-            "lower_window": -1,
-            "upper_window": 1,
-        })
+        holidays = pd.DataFrame(
+            {
+                "holiday": [
+                    "republic_day",
+                    "holi",
+                    "independence_day",
+                    "gandhi_jayanti",
+                    "diwali",
+                    "christmas",
+                    "new_year",
+                ],
+                "ds": pd.to_datetime(
+                    [
+                        "2024-01-26",
+                        "2024-03-25",
+                        "2024-08-15",
+                        "2024-10-02",
+                        "2024-11-01",
+                        "2024-12-25",
+                        "2025-01-01",
+                    ]
+                ),
+                "lower_window": -1,
+                "upper_window": 1,
+            }
+        )
         model.holidays = holidays
         return model
 
@@ -114,7 +129,9 @@ class DemandForecastModel:
             try:
                 ts = self.prepare_zone_data(df, zone_id)
                 if len(ts) < 48:
-                    logger.warning(f"Zone {zone_id}: insufficient data ({len(ts)} points), skipping")
+                    logger.warning(
+                        f"Zone {zone_id}: insufficient data ({len(ts)} points), skipping"
+                    )
                     continue
 
                 model = self.train_zone_model(ts, zone_id)
@@ -139,8 +156,12 @@ class DemandForecastModel:
         forecast = forecast[forecast["ds"] > last_train].copy()
         forecast["zone_id"] = zone_id
         forecast["yhat"] = forecast["yhat"].clip(lower=0).round().astype(int)
-        forecast["yhat_lower"] = forecast["yhat_lower"].clip(lower=0).round().astype(int)
-        forecast["yhat_upper"] = forecast["yhat_upper"].clip(lower=0).round().astype(int)
+        forecast["yhat_lower"] = (
+            forecast["yhat_lower"].clip(lower=0).round().astype(int)
+        )
+        forecast["yhat_upper"] = (
+            forecast["yhat_upper"].clip(lower=0).round().astype(int)
+        )
 
         self.forecasts[zone_id] = forecast
         return forecast
@@ -151,13 +172,27 @@ class DemandForecastModel:
         for zone_id in self.models:
             try:
                 fc = self.forecast(zone_id, periods)
-                all_forecasts.append(fc[["ds", "zone_id", "yhat", "yhat_lower", "yhat_upper",
-                                         "trend", "weekly", "daily"]])
+                all_forecasts.append(
+                    fc[
+                        [
+                            "ds",
+                            "zone_id",
+                            "yhat",
+                            "yhat_lower",
+                            "yhat_upper",
+                            "trend",
+                            "weekly",
+                            "daily",
+                        ]
+                    ]
+                )
             except Exception as e:
                 logger.error(f"Forecast failed for zone {zone_id}: {e}")
 
         combined = pd.concat(all_forecasts, ignore_index=True)
-        logger.success(f"Generated {len(combined):,} hourly forecasts across {len(self.models)} zones")
+        logger.success(
+            f"Generated {len(combined):,} hourly forecasts across {len(self.models)} zones"
+        )
         return combined
 
     def evaluate(self, zone_id: int) -> dict:
@@ -177,7 +212,7 @@ class DemandForecastModel:
             self.metrics[zone_id] = {
                 "mape": round(mape, 4),
                 "rmse": round(rmse, 2),
-                "zone_id": zone_id
+                "zone_id": zone_id,
             }
             logger.info(f"Zone {zone_id} → MAPE: {mape:.2%}, RMSE: {rmse:.1f}")
             return self.metrics[zone_id]
@@ -199,9 +234,17 @@ class DemandForecastModel:
         history = model.history
         ax.plot(history["ds"], history["y"], "k.", alpha=0.3, label="Actual")
         ax.plot(fc["ds"], fc["yhat"], "b-", label="Forecast")
-        ax.fill_between(fc["ds"], fc["yhat_lower"], fc["yhat_upper"],
-                        alpha=0.3, color="blue", label="90% CI")
-        ax.set_title(f"Zone {zone_id} — {self.platform.title()} Demand Forecast (7 days)")
+        ax.fill_between(
+            fc["ds"],
+            fc["yhat_lower"],
+            fc["yhat_upper"],
+            alpha=0.3,
+            color="blue",
+            label="90% CI",
+        )
+        ax.set_title(
+            f"Zone {zone_id} — {self.platform.title()} Demand Forecast (7 days)"
+        )
         ax.set_ylabel("Demand (events/hour)")
         ax.legend()
         ax.grid(alpha=0.3)
@@ -253,6 +296,7 @@ class DemandForecastModel:
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append("../data_generators")
     from uber_generator import UberRideGenerator
     from zomato_generator import ZomatoOrderGenerator

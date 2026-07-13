@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: raw
+    schema: RAW
+    description: Raw ingested data landed by Spark batch/streaming pipelines
+    tables:
+      - name: FACT_RIDES
+        description: Raw Uber-style ride events
+      - name: FACT_ORDERS
+        description: Raw Zomato-style food delivery order events

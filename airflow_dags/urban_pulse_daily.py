@@ -4,13 +4,13 @@ Daily pipeline: Generate → Kafka → Spark ETL → dbt → ML Training → Rep
 """
 
 from datetime import datetime, timedelta
+
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
-from airflow.models import Variable
-
 
 DEFAULT_ARGS = {
     "owner": "urban-pulse",
@@ -26,6 +26,7 @@ DEFAULT_ARGS = {
 def run_data_validation(**context):
     """Validate incoming data quality before processing"""
     import logging
+
     ds = context["ds"]
     logging.info(f"Running data validation for {ds}")
     # In production: run Great Expectations suite here
@@ -35,6 +36,7 @@ def run_data_validation(**context):
 def trigger_ml_retraining(**context):
     """Re-train ML models if data drift detected"""
     import logging
+
     ds = context["ds"]
     logging.info(f"Checking for data drift on {ds}...")
     # Drift detection logic
@@ -48,9 +50,13 @@ def trigger_ml_retraining(**context):
 def send_daily_report(**context):
     """Generate and send daily executive report via LLM"""
     import logging
+
     import requests
+
     try:
-        r = requests.post("http://localhost:8000/api/v1/insights/daily-report", timeout=30)
+        r = requests.post(
+            "http://localhost:8000/api/v1/insights/daily-report", timeout=30
+        )
         report = r.json().get("report", "Report generation failed")
         logging.info(f"Daily Report Generated:\n{report}")
     except Exception as e:
@@ -63,7 +69,7 @@ with DAG(
     dag_id="urban_pulse_daily_pipeline",
     description="Urban Pulse: Daily data engineering + ML pipeline",
     default_args=DEFAULT_ARGS,
-    schedule_interval="0 2 * * *",     # Run at 2 AM daily
+    schedule_interval="0 2 * * *",  # Run at 2 AM daily
     start_date=days_ago(1),
     catchup=False,
     max_active_runs=1,
@@ -86,7 +92,7 @@ with DAG(
 
     # ── Start ──────────────────────────────────────────────────
     start = DummyOperator(task_id="pipeline_start")
-    end   = DummyOperator(task_id="pipeline_complete")
+    end = DummyOperator(task_id="pipeline_complete")
 
     # ── Data Validation ────────────────────────────────────────
     validate_data = PythonOperator(
@@ -138,4 +144,13 @@ with DAG(
     )
 
     # ── DAG Dependencies ───────────────────────────────────────
-    start >> validate_data >> spark_etl >> dbt_run >> dbt_test >> ml_check >> daily_report >> end
+    (
+        start
+        >> validate_data
+        >> spark_etl
+        >> dbt_run
+        >> dbt_test
+        >> ml_check
+        >> daily_report
+        >> end
+    )

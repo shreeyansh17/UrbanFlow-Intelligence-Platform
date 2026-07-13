@@ -1,9 +1,12 @@
 """Urban Pulse — Rides Router"""
-from fastapi import APIRouter
-from datetime import datetime
+
 import random
+from datetime import datetime
+
+from fastapi import APIRouter
 
 router = APIRouter()
+
 
 @router.get("/kpis")
 async def get_ride_kpis():
@@ -20,14 +23,16 @@ async def get_ride_kpis():
         "avg_surge": 1.28,
         "avg_distance_km": 8.4,
         "surge_rides": 3780,
-        "peak_zone": {"zone_id": 2, "name": "Bandra Kurla", "rides": 1840}
+        "peak_zone": {"zone_id": 2, "name": "Bandra Kurla", "rides": 1840},
     }
+
 
 @router.get("/zone/{zone_id}")
 async def get_zone_ride_stats(zone_id: int):
     """Per-zone ride stats"""
     if zone_id not in range(1, 13):
         from fastapi import HTTPException
+
         raise HTTPException(status_code=400, detail="Invalid zone_id")
     return {
         "zone_id": zone_id,
@@ -35,5 +40,5 @@ async def get_zone_ride_stats(zone_id: int):
         "avg_surge": round(random.uniform(1.0, 2.5), 2),
         "revenue_inr": random.randint(50000, 400000),
         "top_vehicle": "UberGo",
-        "cancellation_rate_pct": round(random.uniform(10, 25), 1)
+        "cancellation_rate_pct": round(random.uniform(10, 25), 1),
     }

@@ -6,21 +6,27 @@ MAE: ~3.1 minutes on test set
 
 import json
 import pickle
-import numpy as np
-import pandas as pd
 from datetime import datetime
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
 from loguru import logger
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 try:
     import tensorflow as tf
+    from tensorflow.keras.callbacks import (
+        EarlyStopping,
+        ModelCheckpoint,
+        ReduceLROnPlateau,
+    )
+    from tensorflow.keras.layers import LSTM, BatchNormalization, Dense, Dropout
     from tensorflow.keras.models import Sequential, load_model
-    from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization
-    from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
     from tensorflow.keras.optimizers import Adam
+
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
@@ -31,10 +37,16 @@ MODEL_DIR = Path("../models/saved")
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 FEATURE_COLS = [
-    "delivery_distance_km", "prep_time_minutes", "hour",
-    "is_weekend", "is_peak_hour", "is_rain",
-    "restaurant_zone", "delivery_zone",
-    "item_count", "subtotal"
+    "delivery_distance_km",
+    "prep_time_minutes",
+    "hour",
+    "is_weekend",
+    "is_peak_hour",
+    "is_rain",
+    "restaurant_zone",
+    "delivery_zone",
+    "item_count",
+    "subtotal",
 ]
 
 
@@ -69,20 +81,26 @@ class ETAPredictionModel:
         X_scaled = self.scaler_X.fit_transform(X)
         y_scaled = self.scaler_y.fit_transform(y)
 
-        return train_test_split(X_scaled, y_scaled.ravel(), test_size=0.2, random_state=42)
+        return train_test_split(
+            X_scaled, y_scaled.ravel(), test_size=0.2, random_state=42
+        )
 
     def build_lstm(self, input_shape: tuple) -> "Sequential":
-        model = Sequential([
-            LSTM(64, input_shape=input_shape, return_sequences=True),
-            BatchNormalization(),
-            Dropout(0.2),
-            LSTM(32, return_sequences=False),
-            BatchNormalization(),
-            Dropout(0.2),
-            Dense(16, activation="relu"),
-            Dense(1, activation="linear")
-        ])
-        model.compile(optimizer=Adam(learning_rate=0.001), loss="huber", metrics=["mae"])
+        model = Sequential(
+            [
+                LSTM(64, input_shape=input_shape, return_sequences=True),
+                BatchNormalization(),
+                Dropout(0.2),
+                LSTM(32, return_sequences=False),
+                BatchNormalization(),
+                Dropout(0.2),
+                Dense(16, activation="relu"),
+                Dense(1, activation="linear"),
+            ]
+        )
+        model.compile(
+            optimizer=Adam(learning_rate=0.001), loss="huber", metrics=["mae"]
+        )
         model.summary()
         return model
 
@@ -97,24 +115,37 @@ class ETAPredictionModel:
             self.model = self.build_lstm((1, X_tr.shape[1]))
 
             callbacks = [
-                EarlyStopping(patience=10, restore_best_weights=True, monitor="val_mae"),
+                EarlyStopping(
+                    patience=10, restore_best_weights=True, monitor="val_mae"
+                ),
                 ReduceLROnPlateau(factor=0.5, patience=5, min_lr=1e-6),
-                ModelCheckpoint(str(MODEL_DIR / "eta_best.keras"), save_best_only=True, monitor="val_mae")
+                ModelCheckpoint(
+                    str(MODEL_DIR / "eta_best.keras"),
+                    save_best_only=True,
+                    monitor="val_mae",
+                ),
             ]
 
             self.history = self.model.fit(
-                X_tr_l, y_tr,
+                X_tr_l,
+                y_tr,
                 validation_data=(X_te_l, y_te),
-                epochs=50, batch_size=256,
-                callbacks=callbacks, verbose=1
+                epochs=50,
+                batch_size=256,
+                callbacks=callbacks,
+                verbose=1,
             )
 
             y_pred_scaled = self.model.predict(X_te_l).ravel()
         else:
             logger.info("Using XGBoost fallback for ETA prediction")
             self.model = XGBRegressor(
-                n_estimators=300, max_depth=6, learning_rate=0.05,
-                subsample=0.8, random_state=42, n_jobs=-1
+                n_estimators=300,
+                max_depth=6,
+                learning_rate=0.05,
+                subsample=0.8,
+                random_state=42,
+                n_jobs=-1,
             )
             self.model.fit(X_tr, y_tr)
             y_pred_scaled = self.model.predict(X_te)
@@ -123,9 +154,9 @@ class ETAPredictionModel:
         y_pred = self.scaler_y.inverse_transform(y_pred_scaled.reshape(-1, 1)).ravel()
         y_true = self.scaler_y.inverse_transform(y_te.reshape(-1, 1)).ravel()
 
-        mae  = mean_absolute_error(y_true, y_pred)
+        mae = mean_absolute_error(y_true, y_pred)
         rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-        r2   = r2_score(y_true, y_pred)
+        r2 = r2_score(y_true, y_pred)
 
         self.metrics = {
             "mae_minutes": round(mae, 2),
@@ -134,7 +165,7 @@ class ETAPredictionModel:
             "model_type": "LSTM" if self.use_lstm else "XGBoost",
             "n_features": len(FEATURE_COLS),
             "n_train": len(X_tr),
-            "trained_at": datetime.now().isoformat()
+            "trained_at": datetime.now().isoformat(),
         }
 
         logger.success(f"\n{'='*50}")
@@ -147,7 +178,9 @@ class ETAPredictionModel:
 
     def predict(self, order_features: dict) -> dict:
         df = pd.DataFrame([order_features])
-        df["event_ts"] = pd.to_datetime(order_features.get("timestamp", datetime.now().isoformat()))
+        df["event_ts"] = pd.to_datetime(
+            order_features.get("timestamp", datetime.now().isoformat())
+        )
         df["hour"] = df["event_ts"].dt.hour
         df["is_weekend"] = df["event_ts"].dt.dayofweek.isin([5, 6]).astype(int)
         df["is_rain"] = int(order_features.get("weather_condition") == "Rain")
@@ -162,20 +195,29 @@ class ETAPredictionModel:
         else:
             pred_scaled = self.model.predict(X_scaled)
 
-        eta_min = float(self.scaler_y.inverse_transform(pred_scaled.reshape(-1, 1)).ravel()[0])
+        eta_min = float(
+            self.scaler_y.inverse_transform(pred_scaled.reshape(-1, 1)).ravel()[0]
+        )
         eta_min = max(10, min(90, eta_min))
 
         return {
             "estimated_delivery_minutes": round(eta_min, 1),
             "confidence_range": f"{round(eta_min - 3, 0):.0f}–{round(eta_min + 3, 0):.0f} min",
-            "model_type": self.metrics.get("model_type", "Unknown")
+            "model_type": self.metrics.get("model_type", "Unknown"),
         }
 
     def save(self):
         path = str(MODEL_DIR / "eta_model.pkl")
         with open(path, "wb") as f:
-            pickle.dump({"scaler_X": self.scaler_X, "scaler_y": self.scaler_y,
-                         "metrics": self.metrics, "use_lstm": self.use_lstm}, f)
+            pickle.dump(
+                {
+                    "scaler_X": self.scaler_X,
+                    "scaler_y": self.scaler_y,
+                    "metrics": self.metrics,
+                    "use_lstm": self.use_lstm,
+                },
+                f,
+            )
         if self.use_lstm and self.model:
             self.model.save(str(MODEL_DIR / "eta_lstm.keras"))
         else:
@@ -188,6 +230,7 @@ class ETAPredictionModel:
 
 if __name__ == "__main__":
     import sys
+
     sys.path.append("../data_generators")
     from zomato_generator import ZomatoOrderGenerator
 
@@ -210,7 +253,7 @@ if __name__ == "__main__":
         "delivery_zone": 6,
         "item_count": 3,
         "subtotal": 450,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
     prediction = model.predict(sample)
     print(f"\n🚴 ETA Prediction: {json.dumps(prediction, indent=2)}")

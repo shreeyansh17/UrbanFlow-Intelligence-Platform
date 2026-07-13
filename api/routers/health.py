@@ -1,10 +1,13 @@
 """Urban Pulse — Health, Rides, and Orders Routers"""
-from fastapi import APIRouter
-from datetime import datetime
+
 import random
+from datetime import datetime
+
+from fastapi import APIRouter
 
 # ── Health ────────────────────────────────────────────────────────────────────
 router = APIRouter()
+
 
 @router.get("/health")
 async def health_check():
@@ -15,6 +18,6 @@ async def health_check():
         "components": {
             "api": "operational",
             "ml_models": "operational",
-            "database": "operational"
-        }
+            "database": "operational",
+        },
     }

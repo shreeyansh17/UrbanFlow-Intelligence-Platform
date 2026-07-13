@@ -4,14 +4,14 @@ Uses Claude API to answer natural language questions about the data
 This is the flagship AI feature that makes recruiters go WOW
 """
 
-import os
 import json
+import os
 from datetime import datetime, timedelta
 from typing import Optional
+
 import anthropic
 import pandas as pd
 from loguru import logger
-
 
 SYSTEM_PROMPT = """You are Urban Pulse AI, a senior data analyst assistant for a ride-hailing 
 and food delivery platform serving Mumbai. You have access to real-time KPI summaries and can 
@@ -76,7 +76,9 @@ ZONE PERFORMANCE (Top 3 by Revenue):
 =====================================
 """
 
-    def ask(self, question: str, kpi_summary: dict = None, use_history: bool = True) -> str:
+    def ask(
+        self, question: str, kpi_summary: dict = None, use_history: bool = True
+    ) -> str:
         """
         Ask a natural language question about the data.
 
@@ -109,10 +111,7 @@ Answer based strictly on the data provided above.
             messages = [{"role": "user", "content": user_message}]
 
         response = self.client.messages.create(
-            model=self.model,
-            max_tokens=600,
-            system=SYSTEM_PROMPT,
-            messages=messages
+            model=self.model, max_tokens=600, system=SYSTEM_PROMPT, messages=messages
         )
 
         answer = response.content[0].text
@@ -124,7 +123,9 @@ Answer based strictly on the data provided above.
             if len(self.conversation_history) > 20:
                 self.conversation_history = self.conversation_history[-20:]
 
-        logger.info(f"LLM Q: {question[:60]}... | Tokens: {response.usage.input_tokens}in/{response.usage.output_tokens}out")
+        logger.info(
+            f"LLM Q: {question[:60]}... | Tokens: {response.usage.input_tokens}in/{response.usage.output_tokens}out"
+        )
         return answer
 
     def generate_daily_report(self, kpi_summary: dict) -> str:
@@ -142,7 +143,9 @@ Keep it under 250 words. Sound like a McKinsey analyst."""
 Explain likely reasons based on current conditions and recommend 2 actions to normalize it."""
         return self.ask(prompt, kpi_summary, use_history=False)
 
-    def predict_demand_insight(self, zone_id: int, forecast_data: dict, kpi_summary: dict) -> str:
+    def predict_demand_insight(
+        self, zone_id: int, forecast_data: dict, kpi_summary: dict
+    ) -> str:
         """Natural language explanation of demand forecast"""
         kpi_summary["forecast"] = forecast_data
         prompt = f"""Based on demand forecasting for Zone {zone_id}, 
@@ -176,8 +179,8 @@ explain the expected demand pattern for next 24 hours and suggest optimal driver
             "top_zones": [
                 {"zone": "Bandra Kurla", "revenue": 380000, "rides": 1840},
                 {"zone": "Lower Parel", "revenue": 295000, "rides": 1420},
-                {"zone": "Powai",        "revenue": 198000, "rides": 1150},
-            ]
+                {"zone": "Powai", "revenue": 198000, "rides": 1150},
+            ],
         }
 
 
@@ -194,9 +197,9 @@ if __name__ == "__main__":
         "Give me a daily executive summary for today's operations.",
     ]
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("URBAN PULSE AI — BUSINESS INSIGHTS DEMO")
-    print("="*60)
+    print("=" * 60)
 
     for q in questions:
         print(f"\n❓ {q}")

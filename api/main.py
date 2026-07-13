@@ -4,26 +4,27 @@ Production-ready REST API serving ML predictions,
 live KPIs, and business insights
 """
 
+import asyncio
 import os
 import sys
-from datetime import datetime, timedelta
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from typing import Optional
-import asyncio
 
-from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
+import uvicorn
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-import uvicorn
 from loguru import logger
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from api.routers import rides, orders, predictions, insights, health
+from api.routers import health, insights, orders, predictions, rides
 from api.schemas.common import APIResponse
 
 # ─── App Startup / Shutdown ───────────────────────────────────────────────────
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -33,6 +34,7 @@ async def lifespan(app: FastAPI):
     # Load ML models into app state
     try:
         from ml_models.surge_prediction import SurgePredictionModel
+
         app.state.surge_model = SurgePredictionModel.load()
         logger.success("✅ Surge prediction model loaded")
     except Exception as e:
@@ -41,6 +43,7 @@ async def lifespan(app: FastAPI):
 
     try:
         from ml_models.eta_prediction import ETAPredictionModel
+
         app.state.eta_model = ETAPredictionModel()
         logger.success("✅ ETA prediction model loaded")
     except Exception as e:
@@ -49,6 +52,7 @@ async def lifespan(app: FastAPI):
 
     try:
         from ml_models.anomaly_detection import RideAnomalyDetector
+
         app.state.anomaly_detector = RideAnomalyDetector.load()
         logger.success("✅ Anomaly detector loaded")
     except Exception as e:
@@ -84,7 +88,7 @@ End-to-end data platform for urban mobility intelligence.
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
-    contact={"name": "Urban Pulse Team", "email": "data@urbanpulse.in"}
+    contact={"name": "Urban Pulse Team", "email": "data@urbanpulse.in"},
 )
 
 # ─── Middleware ───────────────────────────────────────────────────────────────
@@ -100,14 +104,17 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # ─── Routers ──────────────────────────────────────────────────────────────────
 
-app.include_router(health.router,       prefix="/api/v1",            tags=["Health"])
-app.include_router(rides.router,        prefix="/api/v1/rides",       tags=["Rides"])
-app.include_router(orders.router,       prefix="/api/v1/orders",      tags=["Food Orders"])
-app.include_router(predictions.router,  prefix="/api/v1/predictions", tags=["ML Predictions"])
-app.include_router(insights.router,     prefix="/api/v1/insights",    tags=["AI Insights"])
+app.include_router(health.router, prefix="/api/v1", tags=["Health"])
+app.include_router(rides.router, prefix="/api/v1/rides", tags=["Rides"])
+app.include_router(orders.router, prefix="/api/v1/orders", tags=["Food Orders"])
+app.include_router(
+    predictions.router, prefix="/api/v1/predictions", tags=["ML Predictions"]
+)
+app.include_router(insights.router, prefix="/api/v1/insights", tags=["AI Insights"])
 
 
 # ─── Root Endpoint ────────────────────────────────────────────────────────────
+
 
 @app.get("/", include_in_schema=False)
 async def root():
@@ -118,12 +125,12 @@ async def root():
         "timestamp": datetime.now().isoformat(),
         "docs": "/docs",
         "endpoints": {
-            "health":      "/api/v1/health",
-            "rides":       "/api/v1/rides/kpis",
-            "orders":      "/api/v1/orders/kpis",
+            "health": "/api/v1/health",
+            "rides": "/api/v1/rides/kpis",
+            "orders": "/api/v1/orders/kpis",
             "predictions": "/api/v1/predictions/surge",
-            "insights":    "/api/v1/insights/ask",
-        }
+            "insights": "/api/v1/insights/ask",
+        },
     }
 
 
@@ -166,15 +173,15 @@ async def get_dashboard_kpis():
             "anomalies_detected": 43,
         },
         "zone_rankings": [
-            {"zone_id": 2, "zone_name": "Bandra Kurla",  "revenue": 380000, "rank": 1},
-            {"zone_id": 6, "zone_name": "Lower Parel",   "revenue": 295000, "rank": 2},
-            {"zone_id": 8, "zone_name": "Powai",         "revenue": 198000, "rank": 3},
+            {"zone_id": 2, "zone_name": "Bandra Kurla", "revenue": 380000, "rank": 1},
+            {"zone_id": 6, "zone_name": "Lower Parel", "revenue": 295000, "rank": 2},
+            {"zone_id": 8, "zone_name": "Powai", "revenue": 198000, "rank": 3},
         ],
         "ml_signals": {
             "surge_risk_zones": [12, 1],
             "predicted_peak_hour": 19,
             "demand_trend": "increasing",
-        }
+        },
     }
 
 
@@ -184,5 +191,5 @@ if __name__ == "__main__":
         host=os.getenv("API_HOST", "0.0.0.0"),
         port=int(os.getenv("API_PORT", 8000)),
         reload=True,
-        log_level="info"
+        log_level="info",
     )
