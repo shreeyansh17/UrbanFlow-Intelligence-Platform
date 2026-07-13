@@ -213,7 +213,7 @@ class ZomatoOrderGenerator:
             (restaurant.lat - delivery_zone["lat"])**2 +
             (restaurant.lon - delivery_zone["lon"])**2
         ) * 111
-        dist = round(max(0.5, dist + random.uniform(-0.5, 1.5)), 2)
+        dist = round(min(15.0, max(0.5, dist + random.uniform(-0.5, 1.5))), 2)
 
         items, subtotal = self._generate_order_items(restaurant)
         delivery_fee = self._calculate_delivery_fee(dist)
@@ -233,7 +233,7 @@ class ZomatoOrderGenerator:
         base_delivery = int((dist / 15) * 60) + random.randint(5, 15)  # 15 km/h avg
         if is_raining:
             base_delivery = int(base_delivery * 1.4)
-        delivery_time = max(10, base_delivery)
+        delivery_time = min(90, max(10, base_delivery))
 
         delivery_lat = delivery_zone["lat"] + random.uniform(-0.01, 0.01)
         delivery_lon = delivery_zone["lon"] + random.uniform(-0.01, 0.01)

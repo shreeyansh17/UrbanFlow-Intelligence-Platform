@@ -38,7 +38,7 @@ class LLMInsightsEngine:
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY not set in environment")
         self.client = anthropic.Anthropic(api_key=api_key)
-        self.model = "claude-sonnet-4-20250514"
+        self.model = "claude-sonnet-4-6"
         self.conversation_history = []
         logger.info("LLM Insights Engine initialized with Claude")
 

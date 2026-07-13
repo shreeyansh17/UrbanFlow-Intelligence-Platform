@@ -1,0 +1,26 @@
+[0m10:39:24.968025 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a24d340>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a34ae10>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a24d130>]}
+
+
+============================== 10:39:24.971871 | 0ddbe707-3d87-46a6-88bf-a81a357c9674 ==============================
+[0m10:39:24.971871 [info ] [MainThread]: Running with dbt=1.7.3
+[0m10:39:24.972404 [debug] [MainThread]: running dbt with arguments {'log_path': '/home/claude/UrbanFlow-Intelligence-Platform/dbt_models/logs', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'warn_error': 'None', 'use_experimental_parser': 'False', 'invocation_command': 'dbt parse --profiles-dir . --no-send-anonymous-usage-stats', 'version_check': 'True', 'debug': 'False', 'partial_parse': 'True', 'profiles_dir': '.', 'fail_fast': 'False', 'send_anonymous_usage_stats': 'True', 'target_path': 'None', 'no_print': 'None', 'cache_selected_only': 'False', 'indirect_selection': 'eager', 'write_json': 'True', 'static_parser': 'True', 'quiet': 'False', 'printer_width': '80', 'log_cache_events': 'False', 'use_colors': 'True', 'log_format': 'default', 'introspect': 'True'}
+[0m10:39:24.976836 [error] [MainThread]: Encountered an error:
+Parsing Error
+  Env var required but not provided: 'SNOWFLAKE_ACCOUNT'
+[0m10:39:24.977743 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a07b830>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a918830>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f213a672960>]}
+[0m10:39:24.978135 [debug] [MainThread]: Flushing usage events
+[0m10:39:25.022272 [debug] [MainThread]: Error sending anonymous usage statistics. Disabling tracking for this execution. If you wish to permanently disable tracking, see: https://docs.getdbt.com/reference/global-configs#send-anonymous-usage-stats.
+[0m10:39:39.041506 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddf91eb0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddf90bc0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddf91580>]}
+
+
+============================== 10:39:39.043131 | 81abf0ac-3518-4fe0-97d0-c4466f37eaad ==============================
+[0m10:39:39.043131 [info ] [MainThread]: Running with dbt=1.7.3
+[0m10:39:39.043568 [debug] [MainThread]: running dbt with arguments {'log_cache_events': 'False', 'target_path': 'None', 'no_print': 'None', 'profiles_dir': '.', 'cache_selected_only': 'False', 'send_anonymous_usage_stats': 'True', 'static_parser': 'True', 'warn_error_options': 'WarnErrorOptions(include=[], exclude=[])', 'introspect': 'True', 'printer_width': '80', 'invocation_command': 'dbt parse --profiles-dir . --no-send-anonymous-usage-stats', 'fail_fast': 'False', 'indirect_selection': 'eager', 'debug': 'False', 'warn_error': 'None', 'use_experimental_parser': 'False', 'use_colors': 'True', 'log_format': 'default', 'partial_parse': 'True', 'version_check': 'True', 'write_json': 'True', 'log_path': '/home/claude/UrbanFlow-Intelligence-Platform/dbt_models/logs', 'quiet': 'False'}
+[0m10:39:39.047706 [error] [MainThread]: Encountered an error:
+Parsing Error
+  Env var required but not provided: 'SNOWFLAKE_ACCOUNT'
+[0m10:39:39.048504 [debug] [MainThread]: Resource report: {"command_name": "parse", "command_wall_clock_time": 0.050145764, "process_user_time": 1.874319, "process_kernel_time": 0.092518, "process_mem_max_rss": "112964", "process_in_blocks": "96", "process_out_blocks": "8", "command_success": false}
+[0m10:39:39.048917 [debug] [MainThread]: Command `dbt parse` failed at 10:39:39.048799 after 0.05 seconds
+[0m10:39:39.049179 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddfcb920>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddf91820>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x7f73ddf919a0>]}
+[0m10:39:39.049423 [debug] [MainThread]: Flushing usage events
+[0m10:39:39.082623 [debug] [MainThread]: Error sending anonymous usage statistics. Disabling tracking for this execution. If you wish to permanently disable tracking, see: https://docs.getdbt.com/reference/global-configs#send-anonymous-usage-stats.
