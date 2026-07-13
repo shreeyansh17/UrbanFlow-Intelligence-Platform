@@ -4,7 +4,6 @@ Tests for data generators, ML models, and API endpoints
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -186,15 +185,6 @@ class TestSurgeModel:
         )
         model.model.fit(X, y)
 
-        sample = {
-            "hour": 18,
-            "pickup_zone": 2,
-            "vehicle_type": "UberGo",
-            "distance_km": 8.5,
-            "weather_condition": "Rain",
-            "is_peak_hour": True,
-            "timestamp": datetime.now().isoformat(),
-        }
         # Direct category prediction (bypass predict method for unit test)
         assert model.model is not None
 
