@@ -18,7 +18,8 @@ import requests
 from dash import Input, Output, State, dcc, html
 from plotly.subplots import make_subplots
 
-API_BASE = "http://localhost:8000/api/v1"
+import os
+API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000") + "/api/v1"
 
 # ─── App Init ─────────────────────────────────────────────────────────────────
 
