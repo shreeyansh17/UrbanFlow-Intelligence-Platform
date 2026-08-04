@@ -247,3 +247,25 @@ Testing:        pytest, Great Expectations
 ---
 
 *Built as a flagship portfolio project demonstrating end-to-end data engineering expertise.*
+
+---
+
+## 📸 Screenshots
+
+### ETL Pipeline in VS Code
+![VS Code ETL](ss_vscode_etl.png)
+
+### Kafka Streaming
+![Kafka Stream](ss_vscode_kafka_stream.png)
+
+### Model Training Terminal Output
+![Training Terminal](ss_terminal_training.png)
+
+### dbt + Snowflake Integration
+![dbt Snowflake](ss_dbt_snowflake.png)
+
+### ML Results Summary
+![ML Results](linkedin_ml_results.png)
+
+### Tech Stack Overview
+![Tech Stack](linkedin_techstack.png)
