@@ -8,6 +8,7 @@ Real-time analytics dashboard with:
 - AI Insights chat interface
 """
 
+import os
 import random
 from datetime import datetime, timedelta
 
@@ -17,8 +18,6 @@ import plotly.graph_objects as go
 import requests
 from dash import Input, Output, State, dcc, html
 from plotly.subplots import make_subplots
-
-import os
 
 API_BASE = os.getenv("API_BASE_URL", "http://localhost:8000") + "/api/v1"
 
