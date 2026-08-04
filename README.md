@@ -1,4 +1,4 @@
-# 🏆 UrbanFlow Intelligence Platform
+﻿# 🏆 UrbanFlow Intelligence Platform
 
 [![Urban Pulse CI/CD Pipeline](https://github.com/shreeyansh17/UrbanFlow-Intelligence-Platform/actions/workflows/ci.yml/badge.svg)](https://github.com/shreeyansh17/UrbanFlow-Intelligence-Platform/actions/workflows/ci.yml)
 
